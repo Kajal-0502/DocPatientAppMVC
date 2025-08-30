@@ -1,0 +1,55 @@
+@model DocPatientAppMVC.Models.Patient
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        
+
+        .msg-history {
+            font-size: 0.85rem;
+            max-height: 100px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-3">
+        <h4>Your Doctor</h4>
+
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-start" data-userid="@Model.Doctor.Id">
+                <div class="d-flex align-items-center">
+                    @* <span class="status-dot offline me-2" title="Offline"></span> *@
+                    <div>
+                        <div class="fw-semibold">@Model.Doctor.Name</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column align-items-end" style="min-width:260px;">
+
+                    <div class="d-flex align-items-center gap-2 w-100">
+                        <input id="msg-@Model.Doctor.Id" class="form-control form-control-sm" placeholder="Message" style="width:150px" />
+                        <button class="btn btn-sm btn-outline-secondary" onclick="sendMessageToUser('@Model.Doctor.Id')"><i class="fa fa-paper-plane"></i></button>
+                        <button class="btn btn-sm btn-primary" onclick="startCall('@Model.Doctor.Id')"><i class="fa fa-video"></i></button>
+                    </div> <div class="msg-history mt-2 w-100"></div>
+                </div>
+            </li>
+        </ul>
+    </div> <!-- Incoming Call Modal -->
+    <div class="modal fade" id="incomingCallModal" tabindex="-1"> <div class="modal-dialog modal-dialog-centered"> <div class="modal-content"> <div class="modal-header"><h5 class="modal-title">Incoming Call</h5></div> <div class="modal-body text-center"> <p>Incoming call from <strong><span id="incomingFrom"></span></strong></p> <div class="d-flex justify-content-around"> <button class="btn btn-success" onclick="acceptCall()"><i class="fa fa-phone"></i> Accept</button> <button class="btn btn-danger" onclick="rejectCall()"><i class="fa fa-phone-slash"></i> Reject</button> </div> </div> </div> </div> </div> <!-- Video Call Modal -->
+    <div class="modal fade" id="callModal" tabindex="-1"> <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">Video Call <span id="callTimer" class="ms-2 small text-muted">00:00</span></h5> <button type="button" class="btn-close" aria-label="Close" onclick="endCall()"></button> </div> <div class="modal-body"> <div class="row g-2"> <div class="col-6"><video id="localVideo" autoplay muted playsinline style="width:100%;border:1px solid #ddd;border-radius:6px;"></video></div> <div class="col-6"><video id="remoteVideo" autoplay playsinline style="width:100%;border:1px solid #ddd;border-radius:6px;"></video></div> </div> </div> <div class="modal-footer"><button class="btn btn-danger" onclick="endCall()"><i class="fa fa-phone-slash"></i> End Call</button></div> </div> </div> </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/js/videocall.js"></script>
+    <script src="~/js/chat.js"></script>
+    <script>
+        window.isPatient = true;
+    </script>
+</body>
+</html>
