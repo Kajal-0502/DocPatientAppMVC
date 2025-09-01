@@ -47,7 +47,6 @@ namespace DocPatientAppMVC.Hubs
 
         public Task<bool> IsOnline(string userId) => Task.FromResult(_users.ContainsKey(userId));
 
-        // ✅ Chat messaging
         public Task SendMessage(string toUserId, string message)
         {
             var fromUser = Context.UserIdentifier ?? Context.ConnectionId;
@@ -57,7 +56,6 @@ namespace DocPatientAppMVC.Hubs
                 Clients.Client(conn).SendAsync("ReceiveMessage", fromUser, message);
             }
 
-            // apne dashboard me bhi show ho
             if (_users.TryGetValue(fromUser, out var fromConn))
             {
                 Clients.Client(fromConn).SendAsync("ReceiveMessage", fromUser, message);

@@ -155,13 +155,34 @@ function endCall() {
 }
 
 // Media
-async function ensureMedia() {
-    if (!localStream) { localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); document.getElementById('localVideo').srcObject = localStream; }
+async function ensureMedia()
+{
+    if (!localStream)
+    {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
+    }
 }
 
-// Modal helpers
-function showIncomingModal(fromUser) { const el = document.getElementById('incomingCallModal'); if (!el) return; el.querySelector('#incomingFrom').innerText = fromUser || 'Caller'; const modal = new bootstrap.Modal(el); modal.show(); ringtone.play(); }
-function hideIncomingModal() { ringtone.pause(); ringtone.currentTime = 0; const el = document.getElementById('incomingCallModal'); if (!el) return; const modal = bootstrap.Modal.getInstance(el); if (modal) modal.hide(); }
+function showIncomingModal(fromUser)
+{
+    const el = document.getElementById('incomingCallModal');
+    if (!el)
+        return;
+    el.querySelector('#incomingFrom').innerText = fromUser || 'Caller';
+    const modal = new bootstrap.Modal(el);
+    modal.show(); ringtone.play();
+}
+function hideIncomingModal()
+{
+    ringtone.pause();
+    ringtone.currentTime = 0;
+    const el = document.getElementById('incomingCallModal');
+    if (!el)
+        return;
+    const modal = bootstrap.Modal.getInstance(el);
+    if (modal) modal.hide();
+}
 function showCallModal(show) {
     const el = document.getElementById('callModal'); if (!el) return;
     if (show) {
@@ -176,5 +197,14 @@ function showCallModal(show) {
             const sec = String(diff % 60).padStart(2, '0');
             timerEl.innerText = `${min}:${sec}`;
         }, 1000);
-    } else { const modal = bootstrap.Modal.getInstance(el); if (modal) modal.hide(); clearInterval(callTimerInterval); callStartTime = null; const timerEl = el.querySelector('#callTimer'); if (timerEl) timerEl.innerText = '00:00'; }
+    } else
+    {
+        const modal = bootstrap.Modal.getInstance(el);
+        if (modal)
+            modal.hide();
+        clearInterval(callTimerInterval);
+        callStartTime = null;
+        const timerEl = el.querySelector('#callTimer');
+        if (timerEl) timerEl.innerText = '00:00';
+    }
 }

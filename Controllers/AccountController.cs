@@ -16,7 +16,7 @@ public class AccountController : Controller
     private readonly ApplicationDbContext _db;
     public AccountController(ApplicationDbContext db) { _db = db; }
 
-    public IActionResult PatientRegister() 
+    public IActionResult PatientRegister()
     {
         var doctors = _db.DoctorMasters
         .Select(doc => new SelectListItem
@@ -27,26 +27,26 @@ public class AccountController : Controller
         .ToList();
 
         ViewBag.Doctors = doctors;
-        return View(); 
+        return View();
     }
 
-    [HttpPost] 
+    [HttpPost]
     public async Task<IActionResult> PatientRegister(PatientRegisterVm model)
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.Doctors = new SelectList(_db.DoctorMasters.ToList(), "Id", "Name","Department");
-            return View(model); 
+            ViewBag.Doctors = new SelectList(_db.DoctorMasters.ToList(), "Id", "Name", "Department");
+            return View(model);
         }
-        var userId = "PAT" + System.DateTime.Now.Ticks.ToString().Substring(10);
-        var pwd = System.Guid.NewGuid().ToString().Replace("-", "").Substring(0,8);
-        var pat = new Patient 
+        var userId = "PAT" + System.DateTime.Now.Ticks.ToString().Substring(0,4);
+        var pwd = System.Guid.NewGuid().ToString().Replace("-", "").Substring(0, 4);
+        var pat = new Patient
         {
-            PatientName = model.PatientName, 
+            PatientName = model.PatientName,
             Date = model.Date,
-            MobileNo = model.MobileNo, 
+            MobileNo = model.MobileNo,
             Address = model.Address,
-            Complaint = model.Complaint, 
+            Complaint = model.Complaint,
             DoctorId = model.DoctorId,
             UserId = userId,
             PlainPassword = pwd
@@ -58,7 +58,9 @@ public class AccountController : Controller
     }
 
     public IActionResult PatientLogin() => View();
-    [HttpPost] public async Task<IActionResult> PatientLogin(PatientLoginVm vm) {
+    [HttpPost]
+    public async Task<IActionResult> PatientLogin(PatientLoginVm vm)
+    {
         if (!ModelState.IsValid) return View(vm);
         var pat = _db.Patients.FirstOrDefault(p => p.UserId == vm.UserId && p.PlainPassword == vm.Password);
         if (pat == null) { ModelState.AddModelError(string.Empty, "Invalid credentials"); return View(vm); }
@@ -69,7 +71,9 @@ public class AccountController : Controller
     }
 
     public IActionResult DoctorLogin() => View();
-    [HttpPost] public async Task<IActionResult> DoctorLogin(DoctorLoginVm vm) {
+    [HttpPost]
+    public async Task<IActionResult> DoctorLogin(DoctorLoginVm vm)
+    {
         if (!ModelState.IsValid) return View(vm);
         var doc = _db.DoctorMasters.FirstOrDefault(d => d.Username == vm.Username && d.Password == vm.Password);
         if (doc == null) { ModelState.AddModelError(string.Empty, "Invalid credentials"); return View(vm); }
