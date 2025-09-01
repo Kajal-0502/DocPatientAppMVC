@@ -4,12 +4,22 @@ using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DocPatientAppMVC.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using DocPatientAppMVC.Data;
 namespace DocPatientAppMVC.Hubs;
 [Authorize]
 public class ChatHub : Hub 
 { 
     private static readonly ConcurrentDictionary<string, HashSet<string>> _connections = new();
     private static readonly ConcurrentDictionary<string, bool> _online = new();
+    private readonly ApplicationDbContext _dbContext;
+
+    public ChatHub(ApplicationDbContext dbContext)
+    {
+        _dbContext = dbContext; 
+    }
     public override Task OnConnectedAsync()
     {
         var id = Context.UserIdentifier ?? Context.User?.Identity?.Name ?? "unknown";
@@ -33,12 +43,27 @@ public class ChatHub : Hub
             } 
         }
         return base.OnDisconnectedAsync(exception);
-    } 
-    public Task SendMessage(string toUserId, string message)
+    }
+    public async Task SendMessage(string toUserId, string message)
     {
-        var from = Context.UserIdentifier ?? Context.User?.Identity?.Name ?? "unknown";
-        return Clients.User(toUserId).SendAsync("ReceiveMessage", from, message, System.DateTime.UtcNow);
-    } 
+        var fromUserId = Context.UserIdentifier ?? Context.User?.Identity?.Name ?? "unknown";
+
+        // Save message in DB
+        var chatMessage = new Message
+        {
+            FromUserId = fromUserId,
+            ToUserId = toUserId,
+            Text = message,
+            SentAtUtc = DateTime.UtcNow
+        };
+
+        _dbContext.Messages.Add(chatMessage);
+        await _dbContext.SaveChangesAsync();
+
+        // Send to receiver
+        await Clients.User(toUserId).SendAsync("ReceiveMessage", fromUserId, message, chatMessage.SentAtUtc);
+
+    }
     public Task SendOffer(string toUserId, string sdp)
         => Clients.User(toUserId).SendAsync("ReceiveOffer", Context.UserIdentifier ?? Context.User?.Identity?.Name, sdp);
     public Task SendAnswer(string toUserId, string sdp)
